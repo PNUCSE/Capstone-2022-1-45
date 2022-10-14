@@ -1,0 +1,43 @@
+---
+name: pnu-network-${ORGDOMAIN}
+version: 1.0.0
+client:
+  organization: ${ORG}
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+organizations:
+  ${ORG}:
+    mspid: ${ORG}MSP
+    peers:
+    - peer0.${ORGDOMAIN}.pnu.com
+    - peer1.${ORGDOMAIN}.pnu.com
+    certificateAuthorities:
+    - ca.${ORGDOMAIN}.pnu.com
+peers:
+  peer0.${ORGDOMAIN}.pnu.com:
+    url: grpcs://localhost:${P0PORT}
+    tlsCACerts:
+      pem: |
+        ${PEERPEM}
+    grpcOptions:
+      ssl-target-name-override: peer0.${ORGDOMAIN}.pnu.com
+      hostnameOverride: peer0.${ORGDOMAIN}.pnu.com
+  peer1.${ORGDOMAIN}.pnu.com:
+    url: grpcs://localhost:${P1PORT}
+    tlsCACerts:
+      pem: |
+        ${PEERPEM}
+    grpcOptions:
+      ssl-target-name-override: peer1.${ORGDOMAIN}.pnu.com
+      hostnameOverride: peer1.${ORGDOMAIN}.pnu.com
+certificateAuthorities:
+  ca.${ORGDOMAIN}.pnu.com:
+    url: https://localhost:${CAPORT}
+    caName: ca-${ORGDOMAIN}
+    tlsCACerts:
+      pem: |
+        ${CAPEM}
+    httpOptions:
+      verify: false

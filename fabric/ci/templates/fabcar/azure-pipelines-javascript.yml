@@ -1,0 +1,21 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+steps:
+  - script: ./startFabric.sh javascript
+    workingDirectory: pnucc
+    displayName: Start Fabric
+  - script: |
+      retry -- npm install
+      npm ls
+    workingDirectory: pnucc/javascript
+    displayName: Install PnuCC Application Dependencies
+  - script: |
+      set -ex
+      node enrollAdmin
+      node registerUser
+      node invoke
+      node query
+    workingDirectory: pnucc/javascript
+    displayName: Run PnuCC Application
