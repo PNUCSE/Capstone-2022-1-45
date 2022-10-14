@@ -32,3 +32,112 @@
 
 ---
 ## 사용법
+### 블록체인 네트워크
+- Vagrant setup
+블록체인 네트워크 실행은 Vagrant에서 됩니다.
+```bash
+go1.14.2
+docker
+docker-compose
+node.js 10.x
+```
+실행을 위해 필요한 환경은 위와 같습니다.
+- Vagrant 시작, 접속
+```bash
+vagrant up
+vagrant ssh
+```
+- 블록체인 네트워크 실행
+```bash
+cd /vagrant/fabric-samples/pnu-server
+./startFabric.sh
+```
+- 체인코드 배포
+```bash
+cd /vagrant/fabric-samples/pnu-network
+./network.sh deployCC -v {버전(Int)}
+```
+- 중계 서버 실행
+```bash
+cd /vagrant/fabric-samples/pnu-server/javascript
+## Wallet 생성
+node enrollAdmin.js
+node registerUser.js
+## 서버 시작
+node apiserver.js
+```
+- 커맨드라인 테스트
+```bash
+## 전체 거래 쿼리
+curl http://localhost:8080/transaction/query-all/
+## 유저 등록
+curl -d '{"enrollmentID": 1, "departmentName": "buyer"}' -H "Content-Type: application/json" -X POST http://localhost:8080/register/
+curl -d '{"enrollmentID": 2, "departmentName": "supplier"}' -H "Content-Type: application/json" -X POST http://localhost:8080/register/
+## 공급자의 인증서 등록
+curl -d '{"supplier": 2, "quantity": 10000000, "is_jeju": false, "supply_date": 1, "expire_date": 3}' -H "Content-Type: application/json" -X POST http://localhost:8080/certificate/register/
+## 2의 등록된 인증서 조회
+curl http://localhost:8080/certificate/query/2
+## 2의 판매 등록
+curl -d '{"target": "CERTIFICATE_1663057333", "price": 50000, "quantity": 100, "supplier": "2"}' -H "Content-Type: application/json" -X POST http://localhost:8080/transaction/create/
+## 1의 구매 요청
+curl -d '{"id": "TRANSACTION_1", "buyer": 1}' -H "Content-Type: application/json" -X POST http://localhost:8080/transaction/execute/
+## 2 등록된 인증서 합 조회
+curl http://localhost:8080/certificate/query-sum-by-supplier/2
+## 1 구매한 인증서 합 조회
+curl http://localhost:8080/certificate/query-sum-by-buyer/1
+## 2의 구매 승인
+curl -d '{"id": "TRANSACTION_1"}' -H "Content-Type: application/json" -X POST http://localhost:8080/transaction/approve/
+curl http://localhost:8080/transaction/query-all/
+```
+- 블록체인 네트워크 종료
+```bash
+cd /vagrant/fabric-samples/pnu-server
+./networkDown.sh
+```
+- Vagrant 종료
+```bash
+exit
+vagrant halt
+```
+- 블록체인 네트워크 상태 저장하여 종료하기
+```bash
+cd /vagrant/fabric-samples/pnu-network/docker
+./stopDocker.sh
+```
+- 블록체인 네트워크 저장된 상태로 시작하기
+```bash
+cd /vagrant/fabric-samples/pnu-network/docker
+./startDocker.sh
+```
+### 백엔드 서버
+- Python(3.8+)이 설치되어 있어야 합니다.
+
+```bash
+# Install Required Modules
+pip3 install -r req.txt
+
+# Move to django project folder
+cd backend/rec
+
+# Create Admin Account
+python3 manage.py createsuperuser
+
+# Initiate first migration
+python3 manage.py makemigrations
+python3 manage.py migrate
+
+# Run server
+python3 manage.py runserver {IP}:{PORT}
+```
+### iPad 어플리케이션
+- XCode 14가 설치되어 있어야 합니다.
+```bash
+# Move to iPadOS project folder
+cd iPadOS/TTS
+
+# Install Pod Modules
+pod install
+
+# Open XCode and Build
+open ./TTS.xcworkspace
+```
